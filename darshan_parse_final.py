@@ -15,9 +15,9 @@ def parseArg(argv):
     global _InputFile
     global logfilename
 
-    database_dbhost = 'localhost'
-    database_dbname = 'mira_final'
-    database_username = 'huong'
+    database_dbhost = '128.174.236.151'
+    database_dbname = 'bluewaters'
+    database_username = 'bbehza2'
     database_password = '123456'
 
     try:
@@ -127,6 +127,7 @@ def parse_perf(cur,next_line_group,logfilename):
 #             "global_iotime float, global_meta float, shared_time_by_open float, shared_time_by_open_lastio float, shared_time_by_slowest float,"
  #            "agg_perf_by_cumul float, agg_perf_by_open float, agg_perf_by_open_lastio float, agg_perf_by_slowest float,"
  #            "iotime_by_cumul float, iotime_by_open float, iotime_by_open_lastio float, iotime_by_slowest float, iotime float,agg_perf_MB float, "
+#    print  next_line_group
     total_bytes = 0
     agg_perf_by_cumul = 1
     agg_perf_by_open = 1
@@ -143,6 +144,7 @@ def parse_perf(cur,next_line_group,logfilename):
     shared_time_by_open = 0
     shared_time_by_open_lastio = 0
     shared_time_by_slowest =0
+    agg_perf_MB = 0
 
     for line in next_line_group:
         n = re.search('#\s+total_bytes:\s+(\S+)',line)
@@ -269,13 +271,13 @@ def parse_file_list(cur,next_line_group,numfiles,nprocs):
 
     if (next_line_group != ""):
         for each in next_line_group:
-            m = re.search('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)',each)
+            m = re.search('(POSIX|MPI)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)',each)
             if m:
-                #print each
-                mpi_posix = m.group(3)
-                file_nprocs = int(m.group(4))
-                read = float(m.group(8))
-                write = float(m.group(9))
+                print each
+                mpi_posix = m.group(1)
+                file_nprocs = int(m.group(2))
+                read = float(m.group(6))
+                write = float(m.group(7))
     #            print mpi_posix, file_nprocs, read, write
 
                 if (file_nprocs == nprocs):
@@ -376,6 +378,7 @@ def parse_header_perf_file(f):
         if n:
             # Read the header - next 13 lines
             next_line_group = list(islice(f,13)) # there are 13 lines in this section
+            #print "%s \n" % (next_line_group)
             if not next_line_group:
                 print "no header info \n"
             else:
@@ -386,6 +389,7 @@ def parse_header_perf_file(f):
         if n:
             #next_line_group = list(islice(f,12))  # Old darshan-parser
             next_line_group = list(islice(f,24))    # New darshan-parser , there are 24 lines in this section
+            #print "%s \n" % (next_line_group)
             if not next_line_group:
                 print "no performance information \n" 
             else:
@@ -396,6 +400,7 @@ def parse_header_perf_file(f):
         n = re.search('#\s+files',line)
         if n:
             next_line_group = list(islice(f,7))  # there are 7 lines in this section
+            #print "%s \n" % (next_line_group)
             if not next_line_group:
                 print "no files info \n"
             else:
@@ -405,16 +410,20 @@ def parse_header_perf_file(f):
         
         n = re.search('#\s+Per-file\s+summary(.+)detailed(.+)',line)
         if n:
-            #numfiles = 0
-            #s = "Select total_count,nprocs from jobs_info where logfilename='%s'" % (logfilename)
-            #cur.execute(s)
-            #row = cur.fetchone()
-            #if (row == None):
-            #    sys.exit()
-            #else:
-            #    numfiles = int(row[0])
-            #    nprocs = int(row[1]) 
-            next_line_group = list(islice(f,16,16+numfiles))  # there are 16 lines before the detailed information starts
+            numfiles = 0
+            s = "Select total_count,nprocs from jobs_info where logfilename='%s'" % (logfilename)
+            cur.execute(s)
+            row = cur.fetchone()
+            if (row == None):
+                sys.exit()
+            else:
+                numfiles = int(row[0])
+                nprocs = int(row[1]) 
+            #print "num files %d \n" % (numfiles)
+            #print "the rest: %s \n" % (f)
+            #next_line_group = list(islice(f,16,16+numfiles))  # there are 16 lines before the detailed information starts
+            next_line_group = list(islice(f,15,None))  # there are 16 lines before the detailed information starts
+            #print "%s \n" % (next_line_group)
             if not next_line_group:
                 print "no files list detailed info \n"
             else:
