@@ -15,10 +15,10 @@ def parseArg(argv):
     global _InputFile
     global logfilename
 
-    database_dbhost = '128.174.236.151'
-    database_dbname = 'bluewaters'
-    database_username = 'bbehza2'
-    database_password = '123456'
+    database_dbhost = ''
+    database_dbname = ''
+    database_username = ''
+    database_password = ''
 
     try:
         opts, args = getopt.getopt(argv,"hi:m:",["ifile=","mode="])
