@@ -1,17 +1,16 @@
 #!/bin/bash
 
-#FILES=$(find /projects/monitoring_data/darshan/ -type f)
-FILES=$(find /projects/monitoring_data/darshan/2015-06/1893253/kjin_flow_id1893253_6-22-48474-7398650372849410191_1.darshan.gz -type f)
-dbhost="128.174.236.151"
-dbuser="bbehza2"
-dbpass="123456"
-dbname="bluewaters"
+FILES=$(find /darshan_logs_directory -type f)
+dbhost=""
+dbuser=""
+dbpass=""
+dbname=""
 for f in $FILES
 do
     filename=$(basename $f)
     shortname="${filename%.darshan.gz}"
     result=`mysql -h $dbhost -u $dbuser -p$dbpass --database $dbname -e "show tables like 'jobs_info'"`
-    if [  -z "$result" ]; then      # table doesn't exist --> insert first record
+    if [  -z "$result" ]; then      # table doesn't exist --> create table/ insert first record
         INPUT="$filename.input.txt"
         darshan-parser --perf --file --file-list-detailed $f > $INPUT
         python ./darshan_parse_final.py -i $INPUT -m 0 # per-job info
