@@ -14,5 +14,5 @@ $ mysql -h "hostname" -u "user" -p
 
 mysql> create database darshan_db;
 
-* Enter credentials in both 2 scripts: shellscript_parse.sh and darshan_parse_final.py, including database host (remote or local), database user and password, database name (e.g. darshan_db)
+* Enter credentials in both 2 scripts: shellscript_parse.sh and darshan_parse_final.py, including database host (remote or local), database username and password, database name (e.g. darshan_db)
 * Enter path to directory contain Darshan logs in shellscript_parse.sh
